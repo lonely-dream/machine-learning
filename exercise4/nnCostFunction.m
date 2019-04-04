@@ -79,16 +79,17 @@ for i = 1:m
 end
 J = -sum(sum(y_matrix .* log(a3) + (1 - y_matrix) .* log(1 - a3))) / m + (lambda/(2*m))*((sum(sum(Theta1(:,2:end).^2))) + sum(sum(Theta2(:,2:end).^2)));
 
-d3 = a3 - y_matrix;                                             % has same dimensions as a3
+d3 = a3 - y_matrix;                                                 % has same dimensions as a3
 d2 = (d3 * Theta2) .* [ones(size(z2,1),1) sigmoidGradient(z2)];     % has same dimensions as a2
 
 D1 = d2(:,2:end)' * a1;    % has same dimensions as Theta1
 D2 = d3' * a2;             % has same dimensions as Theta2
 
-Theta1_grad = Theta1_grad + (1/m) * D1;
-Theta2_grad = Theta2_grad + (1/m) * D2;
+Theta1_grad =  (1/m) * D1;
+Theta2_grad =  (1/m) * D2;
 
-
+Theta1_grad(:,2:end) = Theta1_grad(:,2:end) + (lambda/m)*(Theta1(:,2:end));
+Theta2_grad(:,2:end) = Theta2_grad(:,2:end) + (lambda/m)*(Theta2(:,2:end));
 
 
 
@@ -101,6 +102,5 @@ Theta2_grad = Theta2_grad + (1/m) * D2;
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
