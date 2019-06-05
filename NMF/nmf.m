@@ -1,44 +1,20 @@
-function [W, H, cost] = nmf(V, k, iteration_time, lambda)
-
-    W = rand(size(V, 1), k);
-    H = rand(k, size(V, 2));
+function [W, H, cost, delta] = nmf(V, R, r, iteration_time)
+    [n m] = size(V);
+    W = rand(n, r);
+    H = rand(r, m);
 
     cost = zeros(1, iteration_time);
+    delta = zeros(1, iteration_time + 1);
 
 
-    % for i = 1:iteration_time
-    %     i
-    %     LW = W;
-    %     LH = H;
-
-    %     T = LW * LH;
-
-    %     W = (V * (LH')) ./ (T * (LH')) .* LW;
-    %     H = ((LW') * V) ./ ((LW') * T) .* LH;
-    %     cost(i) = norm((V - W * H) .^ 2, 1) / size(V, 1) / size(V , 2) ;
-    %     % V - W * H
-    %     % pause
-    %     cost(i)
-    %     % pause
-    %     if cost(i) < 1e-5
-    %         break
-    %     end
-    % end
-
-    for i = 1:iteration_time
-        i
-        LW = W;
-        LH = H;
-
-        T = LW * LH;
-        % max(max(LW ./ (T * (LH'))))
-        % pause
-        W = LW + lambda * (V * (LH') - T * (LH'));
-        H = LH + lambda * ((LW') * V - (LW') * T);
-
-        cost(i) = norm((V - W * H) .^ 2, 1) / size(V, 1) / size(V , 2);
-        cost(i)
-        if(cost(i) < 1e-5)
-            break;
+    for i = 2:iteration_time
+        W = W .* (V * H') ./ (((W * H) .* R) * H');
+        H = H .* (W' * V) ./ (W' * ((W * H) .* R));
+        cost(i) = sum(sum(((W * H) .* R - V) .^ 2));
+        delta(i) = cost(i - 1) - cost(i);                                                                                                   
+        delta(i)
+        if abs(delta(i)) < 1e-5
+            break
         end
+    end
 end
